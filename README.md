@@ -9,6 +9,11 @@ Once installed, you can import it in your project using ES6 syntax:
 ```javascript
 import { add, remove } from 'shortcut';
 ```
+But you can simply Include this script in your HTML file within a <script> tag or link to an external JS file where you have included this code:
+```
+<script src="shortcut.js"></script>
+```
+
 ### Usage
 To use the `shortcut` library, follow these steps:
 1. Define a function that will be called when the desired key combination is pressed (this can be any JavaScript function).
