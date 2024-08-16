@@ -69,7 +69,7 @@ const shortcut = (() => {
       if (evt.altKey) pressedKeys.push('ALT');
       if (evt.metaKey) pressedKeys.push('META');
       if (!['CONTROL', 'SHIFT', 'ALT', 'META'].includes(evt.code)) {
-         const keyName = evt.code.replace(/^Key/, '').toUpperCase();
+         const keyName = evt.code.replace(/^(Key|Digit)/, '').toUpperCase();
          if (keyName !== evt.key && !evt.repeat) {
             pressedKeys.push(keyName);
          }
