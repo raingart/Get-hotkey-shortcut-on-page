@@ -11,59 +11,55 @@
 //  });
 
 const shortcut = (() => {
-
-   const KEY_MAP = {
-      ControlLeft: 'CTRL',
-      ControlRight: 'CTRL',
-      ShiftLeft: 'SHIFT',
-      ShiftRight: 'SHIFT',
-      AltLeft: 'ALT',
-      AltRight: 'ALT',
-      MetaLeft: 'META',
-      MetaRight: 'META',
-   };
-
-   const shortcutData = new Map();
-   const shortcutSet = new Set();
+   const SHORTCUT_SET = new Set();
+   const SHORTCUT_DATA = new Map();
 
    /**
     * Add a new keyboard shortcut
-    * @param {string} shortcutCombination - Combination of keys for the shortcut (e.g., 'ctrl+alt+a')
+    * @param {string} shortcutCombination - Combination of keys for the shortcut (e.g., 'ctrl+shift+a')
     * @param {function} callback - Function to be executed on key press
-    * @param {Object} options - Options for the shortcut (type, propagate, target, keycode)
+    * @param {Object} options - Options for the shortcut (type, propagate, target)
     */
-   const add = ({ shortcutCombination, callback, options = {} }) => {
-      // console.log('Adding shortcut:', shortcutCombination);
+   const add = ({ shortcutCombination = required(), callback = required(), options = {} }) => {
+      if (!shortcutCombination || typeof callback !== 'function') {
+         console.error('Invalid arguments');
+         return
+      }
 
-      // Set up default options
+      const normalizedCombination = shortcutCombination.toUpperCase();
+      SHORTCUT_SET.add(normalizedCombination);
+
+      // Merge provided options with default ones
       const mergedOptions = {
          type: 'keydown',
          propagate: false,
          target: document,
-         ...options, // Spread provided options on top
+         ...options,
       };
 
-      shortcutSet.add(shortcutCombination.toUpperCase());
-      // Store additional options and callback if needed
-      shortcutData.set(shortcutCombination, { callback, ...mergedOptions });
+      SHORTCUT_DATA.set(normalizedCombination, { callback, ...mergedOptions });
    };
 
    /**
     * Remove a keyboard shortcut
-    * @param {string} shortcutCombination - Combination of keys for the shortcut (e.g., 'ctrl+alt+a')
+    * @param {string} shortcutCombination - Combination of keys for the shortcut (e.g., 'ctrl+shift+a')
     */
-   const remove = (shortcutCombination) => {
-      // console.log('Removing shortcut:', shortcutCombination);
-      shortcutSet.delete(shortcutCombination);
+   const remove = (shortcutCombination = required()) => {
+      SHORTCUT_SET.delete(shortcutCombination.toUpperCase());
    };
 
-   const isInputDisabled = (target) => {
+   /**
+    * Check if the target element is an input, textarea, or contenteditable
+    * @param {Element} target - Target event target element
+    * @returns {boolean}
+    */
+   const isInputDisabled = (target = required()) => {
       return ['input', 'textarea', 'select'].includes(target.localName) || target.isContentEditable;
-   }
+   };
 
    /**
     * Handle key press event
-    * @param {Event} e - Key press event
+    * @param {Event} evt - Key press event
     */
    const handleKeyPress = (evt) => {
       const pressedKeys = [];
@@ -71,15 +67,19 @@ const shortcut = (() => {
       if (evt.shiftKey) pressedKeys.push('SHIFT');
       if (evt.altKey) pressedKeys.push('ALT');
       if (evt.metaKey) pressedKeys.push('META');
-      pressedKeys.push(KEY_MAP[evt.code] || evt.code.replace('Key', ''));
+      if (!['CONTROL', 'SHIFT', 'ALT', 'META'].includes(evt.code)) {
+         const keyName = evt.code.replace(/^Key/, '').toUpperCase();
+         if (keyName !== evt.key && !evt.repeat) {
+            pressedKeys.push(keyName);
+         }
+      }
 
       const pressedShortcut = pressedKeys.join('+');
 
-      console.debug('pressedShortcut', pressedShortcut);
+      // console.debug('pressedShortcut', pressedShortcut);
 
-      if (shortcutSet.has(pressedShortcut) && !isInputDisabled(evt.target)) {
-         // Retrieve callback and options from shortcutData if needed
-         const { callback, options } = shortcutData.get(pressedShortcut);
+      if (SHORTCUT_SET.has(pressedShortcut) && !isInputDisabled(evt.target)) {
+         const { callback, options } = SHORTCUT_DATA.get(pressedShortcut);
          callback(evt, options);
 
          evt.stopPropagation();
