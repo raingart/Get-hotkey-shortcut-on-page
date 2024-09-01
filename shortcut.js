@@ -89,7 +89,7 @@ const shortcut = (() => {
    };
 
    // Attach a single event listener for key events on document
-   document.addEventListener('keydown', handleKeyPress);
+   document.addEventListener('keydown', handleKeyPress, { capture: true });
 
    return { add, remove };
 })();
