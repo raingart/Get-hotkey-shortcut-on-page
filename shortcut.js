@@ -1,7 +1,7 @@
 /**
  * Keyboard Shortcut Handler
  * created by: raingart
- */
+*/
 
 // Usage
 // shortcut.add({
@@ -63,16 +63,16 @@ const shortcut = (() => {
     * @param {Event} evt - Key press event
     */
    const handleKeyPress = (evt) => {
+      if (evt.repeat) return;
+
       const pressedKeys = [];
       if (evt.ctrlKey) pressedKeys.push('CTRL');
       if (evt.shiftKey) pressedKeys.push('SHIFT');
       if (evt.altKey) pressedKeys.push('ALT');
       if (evt.metaKey) pressedKeys.push('META');
-      if (!['CONTROL', 'SHIFT', 'ALT', 'META'].includes(evt.code)) {
+      if (!['Control', 'Shift', 'Alt', 'Meta'].includes(evt.key)) {
          const keyName = evt.code.replace(/^(Key|Digit|Numpad)/, '').toUpperCase();
-         if (keyName !== evt.key && !evt.repeat) {
-            pressedKeys.push(keyName);
-         }
+         pressedKeys.push(keyName);
       }
 
       const pressedShortcut = pressedKeys.join('+');
@@ -80,6 +80,7 @@ const shortcut = (() => {
       // console.debug('pressedShortcut', pressedShortcut);
 
       if (SHORTCUT_SET.has(pressedShortcut) && !isInputDisabled(evt.target)) {
+         // console.debug('evt.target', evt.target, document.activeElement);
          const { callback, options } = SHORTCUT_DATA.get(pressedShortcut);
          callback(evt, options);
 
