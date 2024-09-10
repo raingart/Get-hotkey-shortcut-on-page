@@ -55,11 +55,7 @@ const shortcut = (() => {
     * @returns {boolean}
     */
    const isInputDisabled = (target = required()) => {
-      return (
-          ['TEXTAREA', 'SELECT'].includes(target.tagName)
-          || (target.tagName === 'INPUT' && ['email', 'text', 'password', 'search', 'url'].includes(target.getAttribute('type')))
-          || target.isContentEditable
-         );
+      return ['input', 'textarea', 'select'].includes(target.localName) || target.isContentEditable;
    };
 
    /**
